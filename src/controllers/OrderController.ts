@@ -21,6 +21,42 @@ type CheckoutSessionRequest = {
   restaurantId: string;
 };
 
+const stripeWebhookHandler = async (req: Request, res: Response) => {
+  console.log("Received Event");
+  console.log("=========================");
+  console.log("event:", req.body);
+  res.send();
+
+  // let event;
+
+  // try {
+  //   const sig = req.headers["stripe-signature"];
+  //   event = STRIPE.webhooks.constructEvent(
+  //     req.body,
+  //     sig as string,
+  //     STRIPE_ENDPOINT_SECRET
+  //   );
+  // } catch (error: any) {
+  //   console.log(error);
+  //   return res.status(400).send(`Webhook error: ${error.message}`);
+  // }
+
+  // if (event.type === "checkout.session.completed") {
+  //   const order = await Order.findById(event.data.object.metadata?.orderId);
+
+  //   if (!order) {
+  //     return res.status(404).json({ message: "Order not found" });
+  //   }
+
+  //   order.totalAmount = event.data.object.amount_total;
+  //   order.status = "paid";
+
+  //   await order.save();
+  // }
+
+  // res.status(200).send();
+};
+
 const createCheckoutSession = async (
   req: Request,
   res: Response
@@ -132,5 +168,5 @@ const createSession = async (
 export default {
   //   getMyOrders,
   createCheckoutSession,
-  //   stripeWebhookHandler,
+  stripeWebhookHandler,
 };
