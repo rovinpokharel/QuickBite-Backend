@@ -5,14 +5,13 @@ const getCurrentUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const currentUser = await User.findOne({ _id: req.userId });
     if (!currentUser) {
-      // return res.status(404).json({ message: "User not found" });
       res.status(404).json({ message: "User not found" });
+      return;
     }
 
     res.json(currentUser);
   } catch (error) {
     console.log(error);
-    // return res.status(500).json({ message: "Something went wrong" });
     res.status(500).json({ message: "Something went wrong" });
   }
 };
@@ -24,8 +23,8 @@ const createCurrentUser = async (req: Request, res: Response): Promise<void> => 
       const existingUser = await User.findOne({ auth0Id });
   
       if (existingUser) {
-        // return res.status(200).send();
         res.status(200).send();
+        return;
       }
       //Create the user if user doesnot exists
       const newUser = new User(req.body);
@@ -47,7 +46,6 @@ const createCurrentUser = async (req: Request, res: Response): Promise<void> => 
       if (!user) {
         res.status(404).json({ message: "User not found" });
         return;
-        // res.status(404).json({ message: "User not found" });
       }
   
       user.name = name;
