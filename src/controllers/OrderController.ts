@@ -50,7 +50,6 @@ const stripeWebhookHandler = async (
     );
   } catch (error: any) {
     console.log(error);
-    // return res.status(400).send(`Webhook error: ${error.message}`);
     res.status(400).send(`Webhook error: ${error.message}`);
     return;
   }
@@ -59,12 +58,18 @@ const stripeWebhookHandler = async (
     const order = await Order.findById(event.data.object.metadata?.orderId);
 
     if (!order) {
-      // return res.status(404).json({ message: "Order not found" });
       res.status(404).json({ message: "Order not found" });
       return;
     }
 
-    order.totalAmount = event.data.object.amount_total;
+    const amountTotal = event.data.object.amount_total;
+    if (amountTotal === null) {
+      res.status(400).json({ message: "Invalid amount total from Stripe" });
+      return;
+    }
+
+    // Convert amount from paisa to rupees
+    order.totalAmount = amountTotal / 100;
     order.status = "paid";
 
     await order.save();
@@ -134,10 +139,11 @@ const createLineItems = (
       throw new Error(`Menu item not found: ${cartItem.menuItemId}`);
     }
 
+    // Convert rupees to paisa only when sending to Stripe
     const line_item: Stripe.Checkout.SessionCreateParams.LineItem = {
       price_data: {
         currency: "npr",
-        unit_amount: menuItem.price,
+        unit_amount: Math.round(menuItem.price * 100), // Convert to paisa for Stripe
         product_data: {
           name: menuItem.name,
         },
@@ -163,7 +169,7 @@ const createSession = async (
           display_name: "Delivery",
           type: "fixed_amount",
           fixed_amount: {
-            amount: deliveryPrice,
+            amount: Math.round(deliveryPrice * 100), // Convert to paisa for Stripe
             currency: "npr",
           },
         },
