@@ -20,6 +20,10 @@ const userSchema = new mongoose.Schema({
     },
     country: {
         type: String,
+    },
+    admin: {
+        type: Boolean,
+        default: false
     }
 })
 

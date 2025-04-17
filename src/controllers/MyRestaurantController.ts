@@ -4,12 +4,12 @@ import cloudinary from "cloudinary";
 import mongoose from "mongoose";
 import Order from "../models/order";
 
-const getMyRestaurant = async (req: Request, res: Response): Promise<void> => {
+const getMyRestaurant = async (req: Request, res: Response) => {
   try {
     const restaurant = await Restaurant.findOne({ user: req.userId });
     if (!restaurant) {
-      // return res.status(404).json({ message: "restaurant not found" });
       res.status(404).json({ message: "restaurant not found" });
+      return;
     }
     res.json(restaurant);
   } catch (error) {
@@ -21,20 +21,19 @@ const getMyRestaurant = async (req: Request, res: Response): Promise<void> => {
 const createMyRestaurant = async (
   req: Request,
   res: Response
-): Promise<void> => {
+) => {
   try {
     const existingRestaurant = await Restaurant.findOne({ user: req.userId });
 
     if (existingRestaurant) {
-      // return res.status(409).json({ message: "User restaurant already exists" });
       res.status(409).json({ message: "User restaurant already exists" });
+      return;
     }
 
     const imageUrl = await uploadImage(req.file as Express.Multer.File);
 
     const restaurant = new Restaurant(req.body);
     restaurant.imageUrl = imageUrl;
-    // restaurant.imageUrl = imageUrl;
     restaurant.user = new mongoose.Types.ObjectId(req.userId);
     restaurant.lastUpdated = new Date();
     await restaurant.save();
@@ -49,14 +48,13 @@ const createMyRestaurant = async (
 const updateMyRestaurant = async (
   req: Request,
   res: Response
-): Promise<void> => {
+) => {
   try {
     const restaurant = await Restaurant.findOne({
       user: req.userId,
     });
 
     if (!restaurant) {
-      // return res.status(404).json({ message: "restaurant not found" });
       res.status(404).json({ message: "restaurant not found" });
       return;
     }
@@ -86,11 +84,10 @@ const updateMyRestaurant = async (
 const getMyRestaurantOrders = async (
   req: Request,
   res: Response
-): Promise<void> => {
+) => {
   try {
     const restaurant = await Restaurant.findOne({ user: req.userId });
     if (!restaurant) {
-      //   return res.status(404).json({ message: "restaurant not found" });
       res.status(404).json({ message: "restaurant not found" });
       return;
     }
@@ -109,14 +106,13 @@ const getMyRestaurantOrders = async (
 const updateOrderStatus = async (
   req: Request,
   res: Response
-): Promise<void> => {
+) => {
   try {
     const { orderId } = req.params;
     const { status } = req.body;
 
     const order = await Order.findById(orderId);
     if (!order) {
-      //   return res.status(404).json({ message: "order not found" });
       res.status(404).json({ message: "order not found" });
       return;
     }
@@ -124,8 +120,8 @@ const updateOrderStatus = async (
     const restaurant = await Restaurant.findById(order.restaurant);
 
     if (restaurant?.user?._id.toString() !== req.userId) {
-      //   return res.status(401).send();
       res.status(401).send();
+      return;
     }
 
     order.status = status;

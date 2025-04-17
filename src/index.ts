@@ -7,6 +7,7 @@ import { v2 as cloudinary } from "cloudinary";
 import myRestaurantRoute from "./routes/MyRestaurantRoute";
 import restaurantRoute from "./routes/RestautantRoute";
 import orderRoute from "./routes/OrderRoute";
+import adminRoute from "./routes/AdminRoute";
 
 mongoose.connect(process.env.MONGODB_CONNECTION_STRING as string).then(() => console.log("Connected to database!"));
 
@@ -27,15 +28,22 @@ app.get("/health", async (req: Request, res: Response) => {
     res.send({ message: "health OK!" });
 });
 
-app.use("/api/my/user", myUserRoute);
-app.use("/api/my/restaurant", myRestaurantRoute);
-app.use("/api/restaurant", restaurantRoute);
-app.use("/api/order", orderRoute);
-
 app.get("/test", async (req: Request, res: Response) => {
     res.json({ message: "Hello!" });
 });
 
+// API Routes
+app.use("/api/my/user", myUserRoute);
+app.use("/api/my/restaurant", myRestaurantRoute);
+app.use("/api/restaurant", restaurantRoute);
+app.use("/api/order", orderRoute);
+app.use("/api/admin", adminRoute);
+
+// Add 404 handler - this should be the last middleware
+app.use((req, res) => {
+    res.status(404).json({ message: "Not found" });
+});
+
 app.listen(7000, () => {
     console.log("Server started on localhost:7000");
-})
+});
