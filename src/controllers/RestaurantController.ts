@@ -7,8 +7,8 @@ const getRestaurant = async (req: Request, res: Response): Promise<void> => {
 
         const restaurant = await Restaurant.findById(restaurantId);
         if (!restaurant) {
-            // return res.status(404).json({ message: "restaurant not found" });
             res.status(404).json({ message: "restaurant not found" });
+            return;
         }
 
         res.json(restaurant);
@@ -32,14 +32,6 @@ const searchRestaurant = async (req: Request, res: Response): Promise<void> => {
         query["city"] = new RegExp(city, "i");
         const cityCheck = await Restaurant.countDocuments(query);
         if (cityCheck === 0) {
-            // return res.status(404).json({
-            //     data: [],
-            //     pagination: {
-            //         total: 0,
-            //         page: 1,
-            //         pages: 1,
-            //     },
-            // });
             res.status(404).json({
                 data: [],
                 pagination: {
@@ -48,6 +40,7 @@ const searchRestaurant = async (req: Request, res: Response): Promise<void> => {
                     pages: 1,
                 },
             });
+            return;
         }
 
         if (selectedCuisines) {
