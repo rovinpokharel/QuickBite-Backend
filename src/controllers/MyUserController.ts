@@ -18,12 +18,20 @@ const getCurrentUser = async (req: Request, res: Response): Promise<void> => {
 
 const createCurrentUser = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { auth0Id } = req.body;
+      const { auth0Id, admin, restaurantAdmin } = req.body;
       //Check if the user exists
       const existingUser = await User.findOne({ auth0Id });
   
       if (existingUser) {
-        res.status(200).send();
+        // Update user roles if they exist
+        if (admin !== undefined) {
+          existingUser.admin = admin;
+        }
+        if (restaurantAdmin !== undefined) {
+          existingUser.restaurantAdmin = restaurantAdmin;
+        }
+        await existingUser.save();
+        res.status(200).json(existingUser.toObject());
         return;
       }
       //Create the user if user doesnot exists
