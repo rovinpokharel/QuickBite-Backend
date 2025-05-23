@@ -9,6 +9,7 @@ declare global {
         userId: string;
         auth0Id: string;
         isAdmin: boolean;
+        isRestaurantAdmin: boolean;
       }
     }
   }
@@ -51,6 +52,7 @@ export const jwtParse = async (
         req.auth0Id = auth0Id;
         req.userId = user._id.toString();
         req.isAdmin = user.admin;
+        req.isRestaurantAdmin = user.restaurantAdmin;
         next();
     } catch (error) {
         console.error("Auth error:", error);
@@ -65,7 +67,19 @@ export const checkAdmin = async (
     next: NextFunction
 ): Promise<void> => {
     if (!req.isAdmin) {
-        res.status(403).json({ message: "Unauthorized: Admin access required" });
+        res.status(403).json({ message: "Unauthorized" });
+        return;
+    }
+    next();
+};
+
+export const checkRestaurantAdmin = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> => {
+    if (!req.isRestaurantAdmin) {
+        res.status(403).json({ message: "Unauthorized" });
         return;
     }
     next();

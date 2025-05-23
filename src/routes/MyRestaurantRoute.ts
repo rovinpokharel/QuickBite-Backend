@@ -1,6 +1,6 @@
 import express from "express";
 import MyRestaurantController from "../controllers/MyRestaurantController";
-import { jwtCheck, jwtParse, checkAdmin } from "../middleware/auth";
+import { jwtCheck, jwtParse, checkRestaurantAdmin } from "../middleware/auth";
 import { validateMyRestaurantRequest } from "../middleware/validation";
 import multer from "multer";
 
@@ -16,13 +16,11 @@ const upload = multer({
 
 // /api/my/restaurant
 router.get("/", jwtCheck, jwtParse, MyRestaurantController.getMyRestaurant);
-router.get("/orders", jwtCheck, jwtParse, checkAdmin, MyRestaurantController.getMyRestaurantOrders);
-router.patch("/order/:orderId/status", jwtCheck, jwtParse, checkAdmin, MyRestaurantController.updateOrderStatus);
 router.post(
   "/",
   jwtCheck,
   jwtParse,
-  checkAdmin,
+  checkRestaurantAdmin,
   upload.single("imageFile"),
   validateMyRestaurantRequest,
   MyRestaurantController.createMyRestaurant
@@ -31,10 +29,27 @@ router.put(
   "/",
   jwtCheck,
   jwtParse,
-  checkAdmin,
+  checkRestaurantAdmin,
   upload.single("imageFile"),
   validateMyRestaurantRequest,
   MyRestaurantController.updateMyRestaurant
+);
+
+// Restaurant admin specific routes
+router.get(
+  "/orders",
+  jwtCheck,
+  jwtParse,
+  checkRestaurantAdmin,
+  MyRestaurantController.getMyRestaurantOrders
+);
+
+router.patch(
+  "/orders/:orderId",
+  jwtCheck,
+  jwtParse,
+  checkRestaurantAdmin,
+  MyRestaurantController.updateOrderStatus
 );
 
 export default router;
